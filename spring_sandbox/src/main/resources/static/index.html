@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MessageHub | Share Your Thoughts</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Animated background particles */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(255, 119, 119, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        h1 {
+            text-align: center;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #fff 0%, #a0a0ff 50%, #ffa0a0 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 30px rgba(160, 160, 255, 0.3);
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        /* Cards */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #fff, #a0a0ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .highlight {
+            background: linear-gradient(135deg, #ffd89b, #c7e9fb);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-actions h2 {
+            margin-bottom: 0;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 500;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            font-size: 1rem;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin-right: 12px;
+            margin-top: 5px;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 87, 108, 0.6);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(250, 112, 154, 0.4);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(250, 112, 154, 0.6);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #333;
+            box-shadow: 0 4px 15px rgba(252, 182, 159, 0.4);
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(252, 182, 159, 0.6);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-small {
+            padding: 6px 16px;
+            font-size: 0.85rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        /* Messages */
+        .message-list {
+            margin-top: 20px;
+        }
+
+        .message {
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .message:hover {
+            transform: translateX(8px);
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: #f093fb;
+        }
+
+        .message-content {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .message-meta {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .message-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-actions button {
+            padding: 5px 12px;
+            font-size: 0.75rem;
+            margin: 0;
+        }
+
+        /* Status Messages */
+        #status {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+
+        .status {
+            padding: 14px 24px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            animation: slideIn 0.4s ease-out;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .status.success {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: #333;
+        }
+
+        .status.error {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #333;
+        }
+
+        /* Loading & Empty States */
+        .loading {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 40px;
+            font-style: italic;
+            font-size: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            padding: 50px;
+            font-style: italic;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            font-size: 0.95rem;
+        }
+
+        /* Divider */
+        hr {
+            margin: 30px 0;
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #764ba2, #667eea);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .header-actions {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .message-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+                margin-right: 0;
+            }
+
+            .message-actions {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            #status {
+                top: 20px;
+                right: 20px;
+                left: 20px;
+            }
+
+            .status {
+                text-align: center;
+            }
+        }
+
+        /* Create message section */
+        .create-message {
+            margin-bottom: 30px;
+        }
+
+        /* Stats badge */
+        .stats-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>✨ MessageHub</h1>
+
+    <!-- Login Section -->
+    <div id="auth">
+        <div class="card">
+            <h2>🎯 Welcome Back</h2>
+            <div class="form-group">
+                <label>📝 Username</label>
+                <input type="text" id="username" placeholder="Enter your username" autocomplete="username">
+            </div>
+            <div class="form-group">
+                <label>🔒 Password</label>
+                <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+            </div>
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="login()">✨ Sign In</button>
+                <button class="btn btn-outline" onclick="showRegister()">💫 Create Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Section -->
+    <div id="app" style="display: none;">
+        <div class="card">
+            <div class="header-actions">
+                <h2>🌟 Hello, <span id="userName" class="highlight"></span></h2>
+                <button class="btn btn-small btn-danger" onclick="logout()">🚀 Sign Out</button>
+            </div>
+
+            <!-- Create Message Form -->
+            <div class="create-message">
+                <h3>💭 What's on your mind?</h3>
+                <div class="form-group">
+                    <textarea id="newMessage" rows="3" placeholder="Share your thoughts..."></textarea>
+                </div>
+                <button class="btn btn-primary" onclick="createMessage()">✨ Publish Message</button>
+            </div>
+
+            <hr>
+
+            <!-- My Messages Section -->
+            <h3>📦 My Messages <span class="stats-badge" id="myMessagesCount"></span></h3>
+            <div id="myMessages" class="message-list">
+                <div class="loading">✨ Loading your messages...</div>
+            </div>
+
+            <hr>
+
+            <!-- Public Feed Section -->
+            <h3>🌊 Public Stream <span class="stats-badge" id="feedCount"></span></h3>
+            <div id="publicFeed" class="message-list">
+                <div class="loading">🌊 Loading public stream...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Section -->
+    <div id="register" style="display: none;">
+        <div class="card">
+            <h2>🎨 Join the Community</h2>
+            <div class="form-group">
+                <label>✨ Username</label>
+                <input type="text" id="regUsername" placeholder="Choose a username">
+            </div>
+            <div class="form-group">
+                <label>🔒 Password</label>
+                <input type="password" id="regPassword" placeholder="Minimum 6 characters">
+            </div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="register()">🎉 Sign Up</button>
+                <button class="btn btn-outline" onclick="showLogin()">← Back to Sign In</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Message -->
+    <div id="status"></div>
+</div>
+
+<script>
+    let authToken = '';
+
+    function showStatus(message, type = 'info') {
+        const statusDiv = document.getElementById('status');
+        statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        setTimeout(() => {
+            statusDiv.innerHTML = '';
+        }, 3000);
+    }
+
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    function formatDate(dateString) {
+        try {
+            const date = new Date(dateString);
+            const now = new Date();
+            const diff = now - date;
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return 'Just now';
+            if (minutes < 60) return `${minutes} minutes ago`;
+            if (hours < 24) return `${hours} hours ago`;
+            if (days < 7) return `${days} days ago`;
+            return date.toLocaleDateString();
+        } catch (e) {
+            return 'Invalid date';
+        }
+    }
+
+    async function register() {
+        const username = document.getElementById('regUsername').value.trim();
+        const password = document.getElementById('regPassword').value;
+
+        if (!username || !password) {
+            showStatus('Please fill in all fields', 'error');
+            return;
+        }
+
+        if (password.length < 6) {
+            showStatus('Password must be at least 6 characters', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            if (response.ok) {
+                showStatus('✨ Account created successfully! Please sign in.', 'success');
+                showLogin();
+                document.getElementById('regUsername').value = '';
+                document.getElementById('regPassword').value = '';
+            } else {
+                const error = await response.text();
+                showStatus('❌ Registration failed: ' + error, 'error');
+            }
+        } catch (error) {
+            showStatus('❌ Connection error: ' + error.message, 'error');
+        }
+    }
+
+    async function login() {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+
+        if (!username || !password) {
+            showStatus('Please enter username and password', 'error');
+            return;
+        }
+
+        const token = btoa(username + ':' + password);
+
+        try {
+            const response = await fetch('/api/messages/me', {
+                headers: {
+                    'Authorization': 'Basic ' + token
+                }
+            });
+
+            if (response.ok) {
+                authToken = token;
+                document.getElementById('auth').style.display = 'none';
+                document.getElementById('app').style.display = 'block';
+                document.getElementById('userName').innerText = username;
+                document.getElementById('password').value = '';
+
+                await loadMyMessages();
+                await loadPublicFeed();
+
+                showStatus('🎉 Welcome back, ' + username + '!', 'success');
+            } else if (response.status === 401) {
+                showStatus('❌ Invalid username or password', 'error');
+                authToken = '';
+            } else {
+                showStatus('❌ Sign in failed. Please try again.', 'error');
+            }
+        } catch (error) {
+            showStatus('❌ Connection error: ' + error.message, 'error');
+        }
+    }
+
+    function logout() {
+        authToken = '';
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('auth').style.display = 'block';
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+        document.getElementById('status').innerHTML = '';
+        showStatus('🔓 Signed out successfully', 'success');
+    }
+
+    async function createMessage() {
+        const content = document.getElementById('newMessage').value.trim();
+
+        if (!content) {
+            showStatus('Please write a message before sending', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic ' + authToken
+                },
+                body: JSON.stringify({ content })
+            });
+
+            if (response.ok) {
+                document.getElementById('newMessage').value = '';
+                await loadMyMessages();
+                await loadPublicFeed();
+                showStatus('✨ Message published!', 'success');
+            } else if (response.status === 401) {
+                showStatus('Session expired. Please sign in again.', 'error');
+                logout();
+            } else {
+                showStatus('❌ Failed to publish message', 'error');
+            }
+        } catch (error) {
+            showStatus('❌ Connection error: ' + error.message, 'error');
+        }
+    }
+
+    async function loadMyMessages() {
+        const container = document.getElementById('myMessages');
+        container.innerHTML = '<div class="loading">✨ Loading your messages...</div>';
+
+        try {
+            const response = await fetch('/api/messages/me', {
+                headers: {
+                    'Authorization': 'Basic ' + authToken
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    container.innerHTML = '<div class="empty-state">Session expired. Please sign in again.</div>';
+                } else {
+                    container.innerHTML = '<div class="empty-state">Error loading messages</div>';
+                }
+                return;
+            }
+
+            const messages = await response.json();
+            document.getElementById('myMessagesCount').innerText = messages.length;
+
+            if (messages.length === 0) {
+                container.innerHTML = '<div class="empty-state">📭 No messages yet. Share your first thought!</div>';
+                return;
+            }
+
+            container.innerHTML = messages.map(msg => `
+                <div class="message">
+                    <div class="message-content">${escapeHtml(msg.content)}</div>
+                    <div class="message-meta">
+                        <span>📅 ${formatDate(msg.createdAt)}</span>
+                        <div class="message-actions">
+                            <button class="btn btn-small btn-warning" onclick="editMessage(${msg.id}, '${escapeHtml(msg.content)}')">✏️ Edit</button>
+                            <button class="btn btn-small btn-danger" onclick="deleteMessage(${msg.id})">🗑️ Delete</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            container.innerHTML = '<div class="empty-state">Error loading messages</div>';
+            showStatus('Error loading messages: ' + error.message, 'error');
+        }
+    }
+
+    async function loadPublicFeed() {
+        const container = document.getElementById('publicFeed');
+        container.innerHTML = '<div class="loading">🌊 Loading public stream...</div>';
+
+        try {
+            const response = await fetch('/api/messages/feed', {
+                headers: {
+                    'Authorization': 'Basic ' + authToken
+                }
+            });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    container.innerHTML = '<div class="empty-state">Session expired. Please sign in again.</div>';
+                } else {
+                    container.innerHTML = '<div class="empty-state">Error loading feed</div>';
+                }
+                return;
+            }
+
+            const messages = await response.json();
+            document.getElementById('feedCount').innerText = messages.length;
+
+            if (messages.length === 0) {
+                container.innerHTML = '<div class="empty-state">🌊 No messages yet. Be the first to share!</div>';
+                return;
+            }
+
+            container.innerHTML = messages.map(msg => `
+                <div class="message">
+                    <div class="message-content">${escapeHtml(msg.content)}</div>
+                    <div class="message-meta">
+                        <span>👤 ${escapeHtml(msg.username)}</span>
+                        <span>📅 ${formatDate(msg.createdAt)}</span>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            container.innerHTML = '<div class="empty-state">Error loading feed</div>';
+            showStatus('Error loading feed: ' + error.message, 'error');
+        }
+    }
+
+    async function deleteMessage(id) {
+        if (!confirm('Are you sure you want to delete this message?')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/messages/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': 'Basic ' + authToken
+                }
+            });
+
+            if (response.ok) {
+                await loadMyMessages();
+                await loadPublicFeed();
+                showStatus('✅ Message deleted', 'success');
+            } else if (response.status === 401) {
+                showStatus('Session expired. Please sign in again.', 'error');
+                logout();
+            } else {
+                showStatus('❌ Failed to delete message', 'error');
+            }
+        } catch (error) {
+            showStatus('❌ Connection error: ' + error.message, 'error');
+        }
+    }
+
+    async function editMessage(id, currentContent) {
+        const newContent = prompt('Edit your message:', currentContent);
+
+        if (!newContent || newContent === currentContent) {
+            return;
+        }
+
+        if (newContent.trim() === '') {
+            showStatus('Message cannot be empty', 'error');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/messages/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Basic ' + authToken
+                },
+                body: JSON.stringify({ content: newContent })
+            });
+
+            if (response.ok) {
+                await loadMyMessages();
+                await loadPublicFeed();
+                showStatus('✅ Message updated', 'success');
+            } else if (response.status === 401) {
+                showStatus('Session expired. Please sign in again.', 'error');
+                logout();
+            } else {
+                showStatus('❌ Failed to update message', 'error');
+            }
+        } catch (error) {
+            showStatus('❌ Connection error: ' + error.message, 'error');
+        }
+    }
+
+    function showRegister() {
+        document.getElementById('auth').style.display = 'none';
+        document.getElementById('register').style.display = 'block';
+        document.getElementById('status').innerHTML = '';
+    }
+
+    function showLogin() {
+        document.getElementById('register').style.display = 'none';
+        document.getElementById('auth').style.display = 'block';
+        document.getElementById('status').innerHTML = '';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const passwordInput = document.getElementById('password');
+        if (passwordInput) {
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    login();
+                }
+            });
+        }
+
+        const regPasswordInput = document.getElementById('regPassword');
+        if (regPasswordInput) {
+            regPasswordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    register();
+                }
+            });
+        }
+
+        const messageInput = document.getElementById('newMessage');
+        if (messageInput) {
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    createMessage();
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>
